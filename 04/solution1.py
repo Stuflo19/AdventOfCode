@@ -32,26 +32,22 @@ class bingoGrid:
                 if self.grid[row][col] != 'F':
                     self.sum += int(self.grid[row][col])
 
-    def check_square(self, row, col, numb):
-        if(numb in self.grid):
-            for row in range(len(self.grid)):  # outer loop  
-                for col in range(len(self.grid[row])):  # inner loop
-                    if self.grid[row][col] == numb:
-                        self.grid[row][col] = 'F'
+    def check_square(self, numb):
+        for row in range(len(self.grid)):  # outer loop  
+            for col in range(len(self.grid[row])):  # inner loop
+                if self.grid[row][col] == numb:
+                    self.grid[row][col] = 'F'
 
-class bingoSquares:
-    def __init__(self, number):
-        self.num = number
-        self.called = False
-
-file_name = "04\input.txt"
+file_name = "04/input.txt"
 counter = 0
-gridcounter = 0
 numbers = []
 nums = []
 grid = [ [] ]
 grids = []
-sum = 0
+
+max_moves = 0
+max_sum = 0
+max_call = 0
 
 min_moves = 1000
 min_sum = 0
@@ -65,39 +61,47 @@ with open(file_name, 'r') as input:
             line = line.strip().split(",")
             for num in line:
                 numbers.append(num)
+        elif( line == "\n" and counter > 1):
+            for row in range(len(grid)):  # outer loop  
+                for col in range(len(grid[row])):  # inner loop
+                    print(grid[row][col], end = " ")
+                print()
 
+            grids.append(bingoGrid(grid.copy()))
+            grid.clear()
+            gridcounter = 0
+        elif counter > 1:
+            grid.append(line.strip().split())
         else:
-            if( line == "\n" and counter > 1):
-                for row in range(len(grid)):  # outer loop  
-                    for col in range(len(grid[row])):  # inner loop
-                        print(grid[row][col], end = " ")
-                    print()
-
-                grids.append(bingoGrid(grid))
-                grid.clear()
-                gridcounter = 0
-            else:
-                grid.append(line.strip().split())
-                gridcounter += 1
-
+            grid.clear()
         counter += 1
 
-print(counter)
 for num in numbers:
     for g in grids:
-        for row in range(len(g.grid)):  # outer loop  
-            for col in range(len(g.grid[row])):  # inner loop
-                g.check_square(row, col, num)
-    g.check_bingo(numbers.index(num), num)      
+        if not g.bingo:
+            g.check_square(num)
+            g.check_bingo(numbers.index(num), num)      
                 
 for g in grids:
-    #print(g.grid)
+    print(g.grid)
     if g.moves < min_moves:
         min_moves = g.moves
         min_call = g.call
         min_sum = g.sum
 
+    if g.moves > max_moves:
+        max_moves = g.moves
+        max_call = g.call
+        max_sum = g.sum
+
+print("Min:")
 print(min_moves)
 print(min_call)
 print(min_sum)
 print( int(min_sum) * int(min_call) )
+
+print("\n\nMax:")
+print(max_moves)
+print(max_call)
+print(max_sum)
+print(int(max_sum) * int(max_call))
