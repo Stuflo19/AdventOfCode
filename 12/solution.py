@@ -1,23 +1,16 @@
 class Cave:
-    caves = {}
-    visited = {}
+    caves = {} #holds all the instances of Caves
 
     def __init__(self, name, path):
-        self.name = name
-        self.paths = [path]
-        Cave.caves[name] = self
-        if name.islower():
-            self.small = True
-        else:
-            self.small = False
+        self.name = name #holds the name of the cave
+        self.paths = [path] #holds a list of the paths the cave has
+        Cave.caves[name] = self #adds the cave to the cave dictionary
 
-
+    #adds a new path to a cave
     def add_path(self, path):
         self.paths.append(path)
 
-    def get_paths(self):
-        return self.paths
-
+#opens the file and reads in the lines from it
 def open_file():
     file_name = "12/input.txt"
 
@@ -25,6 +18,7 @@ def open_file():
         lines = [list(line.strip().split('-')) for line in (input.readlines())]
         return lines
 
+#function used to read in the lines from the file and create Cave objects for each cave and its paths
 def create_caves(lines):
     for line in lines:
         if line[0] not in Cave.caves:
@@ -37,84 +31,50 @@ def create_caves(lines):
         else:
             Cave.caves[line[1]].add_path(line[0])
 
-def navigate_caves(paths):
-    total = 0
-    path = []
-    current_cave = Cave.caves['start']
-    while len(path) != 0:
-        for i in range(len(current_cave.paths)):
-            print("visited " + current_cave.paths[i])
+#function based on https://www.reddit.com/user/Jools_Jops/ solution
+#Figure out how to do this with true/false and also maybe try a recursive method
+def navigate_caves():
+    total = 0 #tracks total number of times end was reached
+    path = [0, 'start'] #tracks the path we are currently on
+    paths = [path] #holds all the paths that still need to be checked
+    current_cave = Cave.caves['start'] #holds the current cave we are in
 
-            if current_cave.paths[i] == 'end':
-                total += 1
-                break
-            elif current_cave.paths[i] == 'start':
-                continue  
-            elif current_cave.small and current_cave.name in path:
-                break
-            else:
-                print(current_cave.paths[i])
-                path.append(current_cave.paths[i])
-
-        paths = path.pop
-        print(paths)
-
-    return total
-
-def aoc12(filename):
-    graph = {
-        "start": [],
-        "end": []}
-    
-    with open(filename, 'r') as f:
-        for line in f.readlines():
-            a, b = line.strip().split('-')
-            if a not in graph.keys():
-                graph[a] = []
-            graph[a].append(b)
-            if b not in graph:
-                graph[b] = []
-            graph[b].append(a)
-
-    node = 'start'
-    path = [node] # path[0] added to track one revisit to small cave
-    count = 0
-    paths = [path]
-    print("Graph node: " + str(graph[node]))
+    #loops while the paths to run through are not empty
     while len(paths) != 0:
-        for n in graph[node]:
-            if n == 'start':
+        #if the current cave is small and appears more than once set duplicate found        
+        if current_cave.name.islower() and path.count(current_cave.name) > 1:
+            path[0] = 1                  
+        #loops for all the possible caves we can step to from the current cave     
+        for cave in current_cave.paths:
+            #if the next cave is start then skip it
+            if cave == 'start':
+                continue  
+            #if the next cave is end then increment number of found paths
+            if cave == 'end':
+                total += 1
                 continue
-            if n == 'end':
-                count += 1
+            #if the next cave is small and is already in path and appears twice already then skip
+            if cave.islower() and cave in path and path[0] == 1:
                 continue
-            if n in path and n.islower(): # 'and path[0] == 1' added for day 12B 
-                continue
-            paths.append(path + [n])
-        path = paths.pop()
-        print(path)
-        node = path[-1]
-    
-    print(count)
+            
+            #adds the path to the paths to be continued
+            paths.append(path + [cave])
+
+        path = paths.pop() #the current path we are expanding is the last possible path from paths
+        current_cave = Cave.caves[path[-1]] #Sets the next cave to be the last item in the path to be searched
+
+    return total #returns number of caves
 
 def main():
     total = 0
-    path = []
-
-    aoc12("12/input.txt")
 
     lines = open_file()
 
     create_caves(lines)
 
-    # for cave in Cave.caves:
-    #     print("Name: " + Cave.caves[cave].name)
-    #     print(Cave.caves[cave].paths)
-
-    total = navigate_caves(path)
+    total = navigate_caves()
 
     print(total)
-
 
 if __name__ == "__main__":
     main()
