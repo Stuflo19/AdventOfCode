@@ -65,8 +65,6 @@ def new_dictionary(pairs, rules):
     return new_dict
 
 def find_appearances(pairs):
-    dictlen = len(pairs)
-    dictpos = 0
     individual_chars = {}
 
     for pair in pairs:
