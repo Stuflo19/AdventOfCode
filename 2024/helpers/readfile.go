@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func ReadFile(filename string) [][]string {
+func ReadFileWithSeparator(filename string, separator string) [][]string {
 	fileContents := [][]string{}
 	file, err := os.Open(filename)
 
@@ -21,7 +21,7 @@ func ReadFile(filename string) [][]string {
 	for scanner.Scan() {
 		fileContents = append(
 			fileContents,
-			strings.Split(scanner.Text(), ""),
+			strings.Split(scanner.Text(), separator),
 		)
 	}
 
@@ -32,7 +32,7 @@ func ReadFile(filename string) [][]string {
 	return fileContents
 }
 
-func ReadFileWithoutSplit(filename string) []string {
+func ReadFile(filename string) []string {
 	fileContents := []string{}
 	file, err := os.Open(filename)
 
